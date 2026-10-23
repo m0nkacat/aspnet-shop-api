@@ -1,0 +1,17 @@
+@WebApplication5_HostAddress = https://localhost:7071
+
+GET {{WebApplication5_HostAddress}}/api/products?page=1&pageSize=10
+Accept: application/json
+
+###
+
+POST {{WebApplication5_HostAddress}}/api/reservations
+Content-Type: application/json
+
+{ "productId": 1, "userId": 7, "quantity": 3 }
+
+###
+
+POST {{WebApplication5_HostAddress}}/api/reservations/1/cancel
+
+###
