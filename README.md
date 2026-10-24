@@ -4,6 +4,10 @@ REST API интернет-магазина на ASP.NET Core · *Online shop RES
 
 `C#` `.NET 8` `ASP.NET Core Web API` `EF Core 9` `SQL Server` `AutoMapper` `Swagger`
 
+| Swagger UI | `GET /api/products` |
+|---|---|
+| ![Swagger](screenshots/swagger.png) | ![GET products](screenshots/get-products.png) |
+
 ## Что сделано
 - **Многослойная архитектура:** Controller → Service → Repository → EF Core
 - **Обобщённый CRUD без дублирования:** `CrudController<TRead, TCreate, TUpdate, TPatch>`, `CrudService<…>` и `Repository<T>`. Контроллер конкретной сущности занимает одну строку
