@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApplication5.Auth;
 using WebApplication5.DTOs;
 using WebApplication5.Services;
 
@@ -35,6 +37,7 @@ public abstract class CrudController<TRead, TCreate, TUpdate, TPatch> : ApiContr
         return dto is null ? NotFound() : Ok(dto);
     }
 
+    [Authorize(Policy = Policies.AdminOnly)]
     [HttpPost]
     public async Task<IActionResult> Create(TCreate dto)
     {
@@ -44,6 +47,7 @@ public abstract class CrudController<TRead, TCreate, TUpdate, TPatch> : ApiContr
             : ErrorResult(result);
     }
 
+    [Authorize(Policy = Policies.AdminOnly)]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, TUpdate dto)
     {
@@ -51,6 +55,7 @@ public abstract class CrudController<TRead, TCreate, TUpdate, TPatch> : ApiContr
         return result.IsSuccess ? NoContent() : ErrorResult(result);
     }
 
+    [Authorize(Policy = Policies.AdminOnly)]
     [HttpPatch("{id:int}")]
     public async Task<IActionResult> Patch(int id, TPatch dto)
     {
@@ -58,6 +63,7 @@ public abstract class CrudController<TRead, TCreate, TUpdate, TPatch> : ApiContr
         return result.IsSuccess ? NoContent() : ErrorResult(result);
     }
 
+    [Authorize(Policy = Policies.AdminOnly)]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {

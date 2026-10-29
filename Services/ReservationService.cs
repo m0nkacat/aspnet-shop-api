@@ -9,9 +9,11 @@ public interface IReservationService
 {
     Task<PagedResult<ReservationDTO>> GetPagedAsync(int page, int pageSize);
 
+    Task<PagedResult<ReservationDTO>> GetPagedForUserAsync(int userId, int page, int pageSize);
+
     Task<ReservationDTO?> GetByIdAsync(int id);
 
-    Task<ServiceResult<ReservationDTO>> ReserveAsync(CreateReservationDTO dto);
+    Task<ServiceResult<ReservationDTO>> ReserveAsync(int userId, CreateReservationDTO dto);
 
     Task<ServiceResult<ReservationDTO>> CancelAsync(int id);
 }
@@ -41,13 +43,19 @@ public class ReservationService : IReservationService
         return new PagedResult<ReservationDTO>(_mapper.Map<List<ReservationDTO>>(items), totalCount);
     }
 
+    public async Task<PagedResult<ReservationDTO>> GetPagedForUserAsync(int userId, int page, int pageSize)
+    {
+        var (items, totalCount) = await _reservations.GetPagedByUserAsync(userId, page, pageSize);
+        return new PagedResult<ReservationDTO>(_mapper.Map<List<ReservationDTO>>(items), totalCount);
+    }
+
     public async Task<ReservationDTO?> GetByIdAsync(int id)
     {
         var reservation = await _reservations.GetByIdAsync(id);
         return reservation is null ? null : _mapper.Map<ReservationDTO>(reservation);
     }
 
-    public async Task<ServiceResult<ReservationDTO>> ReserveAsync(CreateReservationDTO dto)
+    public async Task<ServiceResult<ReservationDTO>> ReserveAsync(int userId, CreateReservationDTO dto)
     {
         var product = await _products.FindAsync(dto.ProductId);
         if (product is null)
@@ -55,15 +63,15 @@ public class ReservationService : IReservationService
             return ServiceResult<ReservationDTO>.Fail(ServiceStatus.NotFound, $"Товар с id={dto.ProductId} не найден.");
         }
 
-        var user = await _users.FindAsync(dto.UserId);
+        var user = await _users.FindAsync(userId);
         if (user is null)
         {
-            return ServiceResult<ReservationDTO>.Fail(ServiceStatus.NotFound, $"Пользователь с id={dto.UserId} не найден.");
+            return ServiceResult<ReservationDTO>.Fail(ServiceStatus.NotFound, $"Пользователь с id={userId} не найден.");
         }
 
         if (!user.IsActive)
         {
-            return ServiceResult<ReservationDTO>.Fail(ServiceStatus.Conflict, $"Пользователь с id={dto.UserId} неактивен.");
+            return ServiceResult<ReservationDTO>.Fail(ServiceStatus.Conflict, $"Пользователь с id={userId} неактивен.");
         }
 
         if (product.Stock < dto.Quantity)
@@ -75,6 +83,7 @@ public class ReservationService : IReservationService
         product.Stock -= dto.Quantity;
 
         var reservation = _mapper.Map<Reservation>(dto);
+        reservation.UserId = userId;
         reservation.ReservedAt = DateTime.UtcNow;
         await _reservations.AddAsync(reservation);
 

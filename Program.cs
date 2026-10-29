@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication5.Auth;
 using WebApplication5.Mapping;
@@ -41,7 +42,14 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 
 builder.Services.AddJwtAuthentication(builder.Configuration, builder.Environment, out var usesTemporaryJwtKey);
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(Policies.AdminOnly, policy => policy.RequireRole(Roles.Admin));
+    options.AddPolicy(Policies.OwnerOrAdmin, policy => policy
+        .RequireAuthenticatedUser()
+        .AddRequirements(new OwnerOrAdminRequirement()));
+});
+builder.Services.AddSingleton<IAuthorizationHandler, OwnerOrAdminHandler>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
