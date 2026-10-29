@@ -1,6 +1,5 @@
-using System.Security.Cryptography;
-using System.Text;
-using AutoMapper;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using WebApplication5.DTOs;
 using WebApplication5.Models;
 using WebApplication5.Repositories;
@@ -35,25 +34,22 @@ public class RoleService(IRepository<Role> repository, IMapper mapper)
 
 public interface IUserService : ICrudService<UserDTO, CreateUserDTO, UpdateUserDTO, PatchUserDTO> { }
 
-public class UserService(IRepository<User> repository, IMapper mapper)
+public class UserService(IRepository<User> repository, IMapper mapper, IPasswordHasher<User> passwordHasher)
     : CrudService<User, UserDTO, CreateUserDTO, UpdateUserDTO, PatchUserDTO>(repository, mapper), IUserService
 {
     protected override string EntityName => "Пользователь";
 
-    protected override void OnCreating(User entity, CreateUserDTO dto) => entity.PasswordHash = HashPassword(dto.Password);
+    protected override void OnCreating(User entity, CreateUserDTO dto) => entity.PasswordHash = passwordHasher.HashPassword(entity, dto.Password);
 
-    protected override void OnUpdating(User entity, UpdateUserDTO dto) => entity.PasswordHash = HashPassword(dto.Password);
+    protected override void OnUpdating(User entity, UpdateUserDTO dto) => entity.PasswordHash = passwordHasher.HashPassword(entity, dto.Password);
 
     protected override void OnPatching(User entity, PatchUserDTO dto)
     {
         if (dto.Password is not null)
         {
-            entity.PasswordHash = HashPassword(dto.Password);
+            entity.PasswordHash = passwordHasher.HashPassword(entity, dto.Password);
         }
     }
-
-    private static string HashPassword(string password) =>
-        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(password)));
 }
 
 public interface IOrderService : ICrudService<OrderDTO, CreateOrderDTO, UpdateOrderDTO, PatchOrderDTO> { }

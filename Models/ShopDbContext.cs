@@ -173,7 +173,7 @@ public partial class ShopDbContext : DbContext
 
             entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.PasswordHash)
-                .HasMaxLength(64)
+                .HasMaxLength(256)
                 .HasColumnName("password_hash");
             entity.Property(e => e.RoleId).HasColumnName("role_id");
             entity.Property(e => e.Username)
