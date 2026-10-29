@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using WebApplication5.Auth;
 using WebApplication5.Mapping;
 using WebApplication5.Models;
@@ -62,7 +63,17 @@ builder.Services.AddCors(options => options.AddPolicy(ClientCorsPolicy, policy =
 builder.Services.AddLoginRateLimit(builder.Configuration);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition(AuthorizeOperationFilter.SchemeName, new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "JWT access token from POST /api/auth/login"
+    });
+    options.OperationFilter<AuthorizeOperationFilter>();
+});
 
 var app = builder.Build();
 
