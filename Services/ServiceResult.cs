@@ -1,11 +1,13 @@
-namespace WebApplication5.Services;
+﻿namespace WebApplication5.Services;
 
 public enum ServiceStatus
 {
     Success,
     NotFound,
     Invalid,
-    Conflict
+    Conflict,
+    Unauthorized,
+    Forbidden
 }
 
 public class ServiceResult

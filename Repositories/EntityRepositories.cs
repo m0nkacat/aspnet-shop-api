@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using WebApplication5.Models;
 
 namespace WebApplication5.Repositories;
@@ -21,10 +21,23 @@ public class RoleRepository(ShopDbContext context) : Repository<Role>(context)
         query.Include(r => r.Users);
 }
 
-public class UserRepository(ShopDbContext context) : Repository<User>(context)
+public interface IUserRepository : IRepository<User>
+{
+    Task<User?> GetByUsernameAsync(string username);
+
+    Task<Role?> GetRoleByNameAsync(string roleName);
+}
+
+public class UserRepository(ShopDbContext context) : Repository<User>(context), IUserRepository
 {
     protected override IQueryable<User> WithDetails(IQueryable<User> query) =>
         query.Include(u => u.Role);
+
+    public Task<User?> GetByUsernameAsync(string username) =>
+        WithDetails(Set).FirstOrDefaultAsync(u => u.Username == username);
+
+    public Task<Role?> GetRoleByNameAsync(string roleName) =>
+        Context.Roles.FirstOrDefaultAsync(r => r.RoleName == roleName);
 }
 
 public class OrderRepository(ShopDbContext context) : Repository<Order>(context)

@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebApplication5.Services;
 
 namespace WebApplication5.Controllers;
@@ -10,6 +10,8 @@ public abstract class ApiControllerBase : ControllerBase
     {
         ServiceStatus.NotFound => NotFound(new { error = result.Error }),
         ServiceStatus.Conflict => Conflict(new { error = result.Error }),
+        ServiceStatus.Unauthorized => StatusCode(StatusCodes.Status401Unauthorized, new { error = result.Error }),
+        ServiceStatus.Forbidden => StatusCode(StatusCodes.Status403Forbidden, new { error = result.Error }),
         _ => BadRequest(new { error = result.Error })
     };
 
