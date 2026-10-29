@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebApplication5.Auth;
 using WebApplication5.DTOs;
 using WebApplication5.Services;
@@ -16,6 +17,7 @@ public class AuthController(IAuthService authService) : ApiControllerBase
         return result.IsSuccess ? StatusCode(StatusCodes.Status201Created, result.Value) : ErrorResult(result);
     }
 
+    [EnableRateLimiting(LoginRateLimit.PolicyName)]
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDTO dto)
     {
